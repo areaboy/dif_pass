@@ -1,0 +1,1092 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ 
+<title> DIF Pass </title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="landing page, website design" />
+  <script src="scripts/jquery.min.js"></script>
+
+  <script src="scripts/bootstrap.min.js"></script>
+<link type="text/css" rel="stylesheet" href="scripts/bootstrap.min.css">
+
+<link type="text/css" rel="stylesheet" href="scripts/store.css">
+
+
+
+<script src="aes.js"></script>
+
+
+   <script>
+
+
+
+$(document).ready(function(){
+//$('.download_btn').click(function(){
+$(document).on( 'click', '.download_btn', function(){ 
+
+
+         const link = document.createElement("a");
+         const data_to_save  =  $('.data_value').val();
+         const file = new Blob([data_to_save], { type: 'text/plain' });
+         link.href = URL.createObjectURL(file);
+         link.download = "MyDID_Data.txt";
+         link.click();
+         URL.revokeObjectURL(link.href);
+alert('Data Successfully Downloaded...');
+
+
+});
+
+});
+
+
+
+
+
+
+window.addEventListener('load', function(e) {
+    if (navigator.onLine) {
+$('#network_status').html("<br><br><div style='color:white;background:green;padding:10px;border:none;'>Your network status is Online </div>");
+
+    } else {
+$('#network_status').html("<br><br><div style='color:white;background:red;padding:10px;border:none;'>Your network status is Offline. Please Ensure You are Online to use this app... </div>");
+
+    }
+}, false);
+
+
+
+window.addEventListener('online', function(e) {
+$('#network_status').html("<br><br><div style='color:white;background:green;padding:10px;border:none;'>Your are back is Online </div>");
+
+}, false);
+            
+window.addEventListener('offline', function(e) {
+$('#network_status').html("<br><br><div style='color:white;background:red;padding:10px;border:none;'>Your Internet Connection is Down </div>");
+
+}, false);
+
+
+   </script>
+
+
+
+  <script type="module">
+
+import { Web5 } from 'https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs';
+//import { Web5 } from 'https://cdn.jsdelivr.net/npm/@tbd54566975/web5@0.7.0/dist/browser.mjs';
+  let web5;
+  //let myDid;
+  let record;
+
+
+// Create User starts
+document.getElementById("signup_btn").onclick=async ()=>{	
+var password  =     $('#password').val();
+var your_did  =     $('#your_did').val();
+var your_didx  =     your_did;
+var password_confirm =  $('#password_confirm').val();
+var fullname  =         $('#fullname').val();
+var secret_key  =        $('#secret_key').val();
+var email  =     $('#email').val();
+
+//preparing Email for validations
+   var atemail = email.indexOf("@");
+   var dotemail = email.lastIndexOf(".");
+
+
+var schema_uri ="https://schema.org/user_account";
+var myDid = your_did;
+
+//alert(your_did);
+var encryptedPassx = CryptoJS.AES.encrypt(password, secret_key);
+var encryptedPassword = encryptedPassx.toString();
+
+
+
+ 
+    // Trimmed string
+    //let encryptedPassword = str.trim();
+
+if(/[a-z]+/.test(password) && /[A-Z]+/.test(password) && /\d+/.test(password) && password.length >= 8){
+  //return true;
+//alert('ok');
+}
+else{
+
+alert("Your password needs Upper and lower case letters, numbers and a minimum 8 characters");
+return false;
+}
+
+
+var special_character = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+
+if(special_character.test(password)){
+ // return true;
+} else {
+
+
+alert("Your password must contain atleast One Special Character Eg. !@#$%&* ");
+  return false;
+}
+
+
+
+if(fullname==""){
+alert('Please Enter Fullname');
+//return false;
+}
+
+else if(your_did==""){
+alert('Please Enter Your DID');
+//return false;   
+}
+
+// check if DID contains underscore
+
+else if (your_did.indexOf('_') > -1){
+  alert("Your DID should not contain Underscore(_)");
+}
+
+
+else if(email==""){
+alert('Please Enter Email'); 
+}
+
+
+
+else  if (atemail < 1 || ( dotemail - atemail < 2 )){
+alert("Please enter valid email Address")
+}
+
+else if(password==""){
+alert('Please Enter Password');
+//return false;   
+}
+
+else if(password_confirm==""){
+alert('Please Confirm Password');
+//return false;
+}
+
+
+else if(password != password_confirm){
+alert('Password Does not Match');
+//return false;
+}
+
+
+else if(secret_key ==''){
+alert('Secret Key is empty');
+//return false;
+}
+
+// check if DID contains underscore
+
+else if (secret_key.indexOf('_') > -1)
+{
+  alert("Your Secret Key should not contain Underscore(_)");
+}
+
+
+else{
+$('#loader_signup').fadeIn(400).html("<br><div style='color:black;background:#ddd;padding:10px;'><img src='ajax-loader.gif'> Please Wait! .Users is being Created...</div>");
+
+
+({ web5, did: your_did } = await Web5.connect());
+
+//alert(your_did);
+if(your_did == ''){
+alert('Ensure There is an internet connections....');
+
+$('#loader_signup').hide();
+$('#result_signup').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is an internet connections</div>");
+setTimeout(function(){ $('#result_signup').html(''); }, 5000);
+
+
+return false;
+}
+
+
+if(your_did != ''){
+//alert('My DID Successfully Created');
+}else{
+
+alert('Ensure There is an internet connections....');
+
+$('#loader_signup').hide();
+$('#result_signup').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is an internet connections</div>");
+setTimeout(function(){ $('#result_signup').html(''); }, 5000);
+return false;
+}
+
+    //return your_did;
+
+
+
+({ record } = await web5.dwn.records.create({
+    data: {
+      fullname: fullname,
+      password: encryptedPassword,
+      email: email,
+      secret_key: secret_key
+    },
+    message: {
+        schema: schema_uri,
+        dataFormat: 'application/json'
+    },
+}));
+
+
+//alert(record);
+
+if(record == undefined){
+alert('Ensure There is Internet Connection and Try Again');
+
+$('#loader_signup').hide();
+$('#result_signup').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is Internet Connection and Try Again</div>");
+setTimeout(function(){ $('#result_signup').html(''); }, 5000);
+
+return false;
+}
+
+
+if(record.id != ''){
+
+var underscorex ='_';
+//var datax =  your_didx + underscorex + secret_key;
+//var datax =  'MyDID:'+your_didx + underscorex + 'SecretKey:'+secret_key;
+
+var datax =  'MyDID:'+your_didx + underscorex + 'SecretKey:'+secret_key + underscorex + 'Password:'+password + underscorex + 'Email:'+email+ underscorex + 'MYDID_KEY: '+your_did;
+$('.data_value').val(datax).value;
+
+
+alert('User Successfully Signed Up.please Login');
+$('#loader_signup').hide();
+$('#result_signup').html("<div style='color:white;background:green;padding:10px;border:none;'>User Successfully Signed Up.Please Login</div><br>");
+//setTimeout(function(){ $('#result_signup').html(''); }, 5000);
+
+$('#download_btn_id').html("<br><button class='download_btn' style='color:white;background:purple;padding:10px;border:none;'>Download and Save DID Login Data</button><br><br>");
+
+// Empty form Inputs
+
+$('#password').val('');
+$('#password_confirm').val('');
+$('#your_did').val('');
+$('#fullname').val('');
+$('#secret_key').val('');
+$('#email').val('');
+
+
+}else{
+alert('User Signed Up Failed.  Please ensure that your DID is working and Ensure there is Internet Connectins..');
+$('#loader_signup').hide();
+$('#result_signup').html("<div style='color:white;background:red;padding:10px;border:none;'>User Signed Up Failed.  Please ensure that your DID is working and Ensure there is Internet Connectins..</div>");
+setTimeout(function(){ $('#result_signup').html(''); }, 5000);
+
+}
+
+//alert('id: ' +record.id);
+//alert('only id: '+record.data);
+ //return record;
+
+
+
+
+
+}// close if else
+
+		
+		}
+
+
+
+// Create User ends
+
+
+
+
+
+
+// Login User starts
+
+document.getElementById("login_btn").onclick=async ()=>{
+
+
+var password  = $('#password1').val();
+var your_did  = $('#your_did1').val();
+var your_didx = your_did;
+var email  = $('#email1').val();
+
+//preparing Email for validations
+   var atemail = email.indexOf("@");
+   var dotemail = email.lastIndexOf(".");
+
+
+
+if(your_did==""){
+alert('Please Enter Your DID');
+//return false;   
+}
+
+
+
+else if(email==""){
+alert('Please Enter Email'); 
+}
+
+else  if (atemail < 1 || ( dotemail - atemail < 2 )){
+alert("Please enter valid email Address")
+}
+
+
+
+else if(password==""){
+alert('Please Enter Password');
+//return false;   
+}
+
+else{
+$('#loader_login').fadeIn(400).html("<br><div style='color:black;background:#ddd;padding:10px;'><img src='ajax-loader.gif'> Please Wait! .Users is being login...</div>");
+
+let identityAgent;
+
+
+//({ web5, did: your_did } = await Web5.connect());
+
+const {web5, did} = await Web5.connect({
+  agent: identityAgent,
+  connectedDid: your_did
+});
+
+
+
+
+if(your_did == ''){
+alert('Ensure There is an internet connections....');
+$('#loader_login').hide();
+$('#result_login').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is an internet connections</div>");
+setTimeout(function(){ $('#result_login').html(''); }, 5000);
+
+return false;
+}
+
+if(your_did != ''){
+//alert('My DID Successfully Created');
+}else{
+
+alert('Ensure There is an internet connections....');
+
+$('#loader_login').hide();
+$('#result_login').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is an internet connections</div>");
+setTimeout(function(){ $('#result_login').html(''); }, 5000);
+
+return false;
+}
+
+    //return your_did;
+
+
+//Query records to find users data
+const response = await web5.dwn.records.query({
+ recipient: your_did,
+  message: {
+    filter: {
+schema: 'https://schema.org/user_account',
+dataFormat: 'application/json'
+    },
+  },
+});
+
+
+
+
+if (response.records == '') {
+//alert('Record empty');
+$('#loader_login').hide();
+$('#result_login2a').html("<div style='color:white;background:red;padding:10px;border:none;'>Please Signup First....</div>");
+setTimeout(function(){ $('#result_login2a').html(''); }, 7000);
+}
+
+
+
+// Loop through returned records
+response.records.forEach(async record => {
+ 
+ // console.log(await record.data.json());
+var res = await record.data.json();
+
+//alert(res);
+//alert(res.email);
+//alert(res.secret_key);
+//alert(res.password);
+//alert('id: ' +record.id);
+
+if(res.email == email){
+alert('found: ' +res.email);
+}else{
+
+$('#loader_login').hide();
+//$('#result_login').html("<div style='color:white;background:red;padding:10px;border:none;'>Email Address Not Found</div>");
+setTimeout(function(){ $('#result_login').html(''); }, 7000);
+return false;
+
+}
+
+
+// decrypt password data
+var decrypted = CryptoJS.AES.decrypt(res.password, res.secret_key);
+var decrypted_password = decrypted.toString(CryptoJS.enc.Utf8);
+
+if(decrypted_password == password){
+$('#result_login').html("<div style='color:white;background:green;padding:10px;border:none;'>Login Successful</div>");
+
+
+$('#your_did1').val('');
+$('#password1').val('');
+$('#email1').val('');
+
+// initialize sessions
+var token1 = new Date().toLocaleString();
+var token2 = new Date().toLocaleString();
+var token = token1 + token2;
+sessionStorage.setItem('mydid', your_didx);
+sessionStorage.setItem('access_fullname', res.fullname);
+sessionStorage.setItem('access_email', res.email);
+sessionStorage.setItem('access_usertoken', token);
+sessionStorage.setItem('access_secret', secret_key);
+
+window.location='dashboard.html';
+
+}else{
+
+$('#loader_login').hide();
+$('#result_login').html("<div style='color:white;background:red;padding:10px;border:none;'>Password Does Not Match</div>");
+setTimeout(function(){ $('#result_login').html(''); }, 7000);
+return false;
+
+}
+
+
+
+//alert(await record.data.json());
+//return await record.data.json();
+return res;
+
+});
+
+
+
+		
+}//  close if	
+
+
+}
+
+// Login Users Ends
+
+
+
+
+
+
+
+
+// Login Via Files Uploads Starts
+
+
+
+document.getElementById("loadloginFiles").onclick=async ()=>{
+
+
+var fileToLoad  = $('#fileToLoad').val();
+
+if(fileToLoad==""){
+alert('Please Upload Your DID File to Process login');
+return false;   
+}
+
+$('#loader_login2').fadeIn(400).html("<br><div style='color:black;background:#ddd;padding:10px;'><img src='ajax-loader.gif'> Please Wait! .Users is being login...</div>");
+
+  var fileToLoad = document.getElementById("fileToLoad").files[0];
+  var fileReader = new FileReader();
+  fileReader.onload =async function(fileLoadedEvent){
+      var textFromFileLoaded = fileLoadedEvent.target.result;
+      document.getElementById("fileSave").value = textFromFileLoaded;
+//alert(textFromFileLoaded);
+
+
+
+var str = textFromFileLoaded.toString();
+var arr = str.split("_");
+var mydidx = arr[0];
+//var mysecretx = arr[1];
+var mypasswordx = arr[2];
+var myemailx = arr[3];
+
+var arr_did = mydidx.split(":");
+var your_did = arr_did[1];
+
+var arr_email = myemailx.split(":");
+var email = arr_email[1];
+
+var arr_password = mypasswordx.split(":");
+var password = arr_password[1];
+
+
+var your_didx = your_did;
+
+//alert(your_didx);
+
+//({ web5, did: your_did } = await Web5.connect());
+
+let identityAgent;
+const {web5, did} = await Web5.connect({
+  agent: identityAgent,
+  connectedDid: your_did
+});
+
+
+
+//alert(your_did);
+if(your_did == ''){
+alert('Ensure There is an internet connections....');
+$('#loader_login2').hide();
+$('#result_login2').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is an internet connections</div>");
+setTimeout(function(){ $('#result_login2').html(''); }, 5000);
+
+return false;
+}
+
+if(your_did != ''){
+//alert('My DID Successfully Created');
+}else{
+
+alert('Ensure There is an internet connections....');
+
+$('#loader_login2').hide();
+$('#result_login2').html("<div style='color:white;background:red;padding:10px;border:none;'>Ensure There is an internet connections</div>");
+setTimeout(function(){ $('#result_login2').html(''); }, 5000);
+
+return false;
+}
+
+    //return your_did;
+
+
+
+
+//Query records to find users data
+const response = await web5.dwn.records.query({
+ recipient: your_did,
+  message: {
+    filter: {
+schema: 'https://schema.org/user_account',
+dataFormat: 'application/json'
+    },
+  },
+});
+
+//alert(response);
+
+
+
+if (response.records == '') {
+//alert('Record empty');
+$('#loader_login').hide();
+$('#result_login2b').html("<div style='color:white;background:red;padding:10px;border:none;'>Please Signup First....</div>");
+setTimeout(function(){ $('#result_login2b').html(''); }, 7000);
+}
+
+
+// Loop through returned records
+response.records.forEach(async record => {
+ 
+ // console.log(await record.data.json());
+var res = await record.data.json();
+
+//alert(res);
+//alert(res.email);
+//alert(res.secret_key);
+//alert(res.password);
+//alert('id: ' +record.id);
+
+if(res.email == email){
+//alert('found: ' +res.email);
+
+
+
+
+}else{
+
+$('#loader_login2').hide();
+$('#result_login2').html("<div style='color:white;background:red;padding:10px;border:none;'>Email Address Not Found</div>");
+setTimeout(function(){ $('#result_login2').html(''); }, 7000);
+return false;
+
+}
+
+
+
+// decrypt password data
+var decrypted = CryptoJS.AES.decrypt(res.password, res.secret_key);
+var decrypted_password = decrypted.toString(CryptoJS.enc.Utf8);
+
+if(decrypted_password == password){
+$('#result_login2').html("<div style='color:white;background:green;padding:10px;border:none;'>Login Successful</div>");
+
+$('#fileToLoad').val('');
+
+// initialize sessions
+var token1 = new Date().toLocaleString();
+var token2 = new Date().toLocaleString();
+var token = token1 + token2;
+sessionStorage.setItem('mydid', your_didx);
+sessionStorage.setItem('access_fullname', res.fullname);
+sessionStorage.setItem('access_email', res.email);
+sessionStorage.setItem('access_usertoken', token);
+sessionStorage.setItem('access_secret', secret_key);
+
+window.location='dashboard.html';
+
+}else{
+
+$('#loader_login2').hide();
+$('#result_login2').html("<div style='color:white;background:red;padding:10px;border:none;'>Password Does Not Match</div>");
+setTimeout(function(){ $('#result_login2').html(''); }, 7000);
+return false;
+
+}
+
+
+
+//alert(await record.data.json());
+//return await record.data.json();
+return res;
+
+});
+
+
+
+  };
+
+
+fileReader.readAsText(fileToLoad, "UTF-8");
+
+
+};
+
+// Login Via Files Uploads ends
+
+
+
+</script>
+
+
+
+</head>
+<body>
+
+  
+
+
+
+<div class="text-center">
+<nav class="navbar navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navgator">
+        <span class="navbar-header-collapse-color icon-bar"></span>
+        <span class="navbar-header-collapse-color icon-bar"></span>
+        <span class="navbar-header-collapse-color icon-bar"></span> 
+        <span class="navbar-header-collapse-color icon-bar"></span>                       
+      </button>
+     
+<li class="navbar-brand home_click imagelogo_li_remove" ><img class="img-rounded imagelogo_data" src="logo.png"></li>
+
+
+
+
+
+    </div>
+    <div class="collapse navbar-collapse" id="navgator">
+
+<ul class="nav navbar-nav navbar-right">
+<li class="navgate">
+
+<button class="invite_btnx btn btn-warning"><a style="color:white;" href='' title='Signup' data-toggle="modal" data-target="#myModal_create_user">Signup</a></button>
+
+</li>
+
+<li class="navgate">
+
+<button class="invite_btnx btn btn-warning"><a style="color:white;" href='' title='Login' data-toggle="modal" data-target="#myModal_user_login">Login</a></button>
+
+</li>
+</ul>
+
+
+    </div>
+
+
+  </div>
+
+
+
+</nav>
+
+    </div><br />
+<br /><br />
+
+
+
+<div style='width:100vw; height: 100vh;  min-height:600px;'>
+
+ 
+
+<div class='row'>
+
+
+<center><div id='network_status' Class='col-sm-12'></div></center><br>
+<center><h2>DIF Pass</h2></center>
+
+
+
+
+<style>
+
+.stacss{
+background:#ccc;padding:6px;border-radius:1%;
+}
+
+.stacss:hover{
+background:orange;color:black;
+}
+</style>
+
+
+
+<div class='col-sm-12'>
+
+
+
+&nbsp;&nbsp;&nbsp; 
+
+An application that allow <b>Users, Teams, Companies, Organizations etc.</b> to securely store, Share and manage their data 
+ all in one secured place leveraging <b>TBD Decentralized Identity Foundation.</b><br><br>
+<center><h3>Application Features</h3></center>
+
+<ul>
+<li class="stacss">
+<b>PassWord Vault:  </b><br>
+A component that allows <b>Users, Teams, Companies, Organizations etc.</b> to securely store and manage their various Login Password/Secret Credentials across various
+ Sites, Platforms, Applications etc. all in one secured Place.
+
+For Instance You can store, share and Manage your Login Credentials, Passwords, Secrets across Various Site Eg. 
+<b>Facebook, Jira, Gmail, Instagram, Tiktok, youtube etc.</b> all in one place within TBD DIF
+System.
+
+</li><br>
+
+<li class="stacss">
+<b>Credit/Debit Cards Data :</b><br>
+
+A component that allows <b>Users, Teams, Companies, Organizations etc.</b> to securely store, Share and manage their various 
+<b>Credit Cards, Debit Cards</b> informations etc. all in one secured Place within TBD DIF System..
+
+
+</li><br>
+
+
+<li class="stacss">
+<b>Secure Notes/Info:</b><br>
+
+A component that allows <b>Users, Teams, Companies, Organizations etc.</b> to securely store, Share and manage their
+<b>Private Data, Secret Notes and other secured informations etc.</b> all in one secured Place within TBD DIF System..
+</li><br>
+
+<li class="stacss">
+<b>Personal Identifiable Informations(PII):</b><br>
+A component that allows <b>Users, Teams, Companies, Organizations etc.</b> to securely store, Share and manage their
+ <b> Employees, Personal, Relative,Families Personal Indentifiable Informations(PII) Detail etc.</b> Secured all in one place leveraging TBD DIF System.
+
+</li><br>
+
+<li class="stacss">
+<b>Developers API Data:</b><br>
+
+A component that allows <b>Users, Teams, Companies, Organizations etc.</b> to securely store, share and manage their various <b>API Credentials, API Access Token, API Keys etc.</b>
+ across various
+ Sites, Platforms, Applications etc. all in one secured Place leveraging  TBD DIF.
+
+
+</li><br>
+
+<li class="stacss">
+<b>Database Access Credentials:</b><br>
+
+A component that allows <b>Users, Teams, Companies, Organizations etc.</b> to securely store, Share and manage their various <b>Database Connection Details.</b>
+across various databases like <b>Oracle, Mysql, PostGreSOL, MS SQL Server etc.  </b> across various <b>Websites, Applications, Platforms etc. </b>
+ all in one secured Place leveraging  TBD DIF.
+
+</li><br>
+
+<li class="stacss">
+<b>Medical Records:</b><br>
+
+
+A component that allows <b>Users, Patients, Medcal Teams,etc.</b> to securely store, Share and manage their various <b>Medical Data, Medical Appointments Data etc.</b>
+across various Hospitals
+ all in one secured Place leveraging  TBD DIF.
+</li><br>
+
+
+</ul>
+
+
+</div></div><br>
+
+
+
+
+<hr style="margin-top:1.5em">
+<div style="text-align:center"><a href="#">.</a></div>
+
+
+
+<div class='row'>
+
+<button Class='guard col-sm-6'  data-toggle="modal" data-target="#myModal_create_user"  title="Signup">SignUp</button>
+
+<button Class='guard col-sm-6'  data-toggle="modal" data-target="#myModal_user_login"  title="Login">Login</button>
+
+
+
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- create User  Modal start -->
+
+
+
+<div id="myModal_create_user" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header"  style='background: #008080;color:white;padding:10px;'>
+        <h4 class="modal-title">Create Users/SignUp</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+
+
+ <div class="form-group col-sm-12">
+              <label> Enter Your DID</label> <span style='color:red'>MyDID can be anything Unique Eg. ( <b>myDID-fred60</b> )</span><br>
+              <input type="text" class="col-sm-12 form-control" id="your_did" name="your_did" placeholder="Enter Your DID">
+            </div>
+<br>
+ <div class="form-group col-sm-12">
+              <label> Enter Fullname </label>
+              <input type="text" class="col-sm-12 form-control" id="fullname" name="fullname" placeholder="Enter Fullname" >
+            </div>
+<br>
+
+
+ <div class="form-group col-sm-12">
+              <label> Enter Email Address</label>
+              <input type="text" class="col-sm-12 form-control" id="email" name="email" placeholder="Enter Email Address">
+            </div>
+<br>
+
+
+
+
+ <div class="form-group col-sm-12">
+              <label> Enter Password </label>
+              <input type="password" class="col-sm-12 form-control" id="password" name="password" placeholder="Enter Password">
+            </div>
+<br>
+
+
+ <div class="form-group col-sm-12">
+              <label>Confirm Password </label>
+              <input type="password" class="col-sm-12 form-control" id="password_confirm" name="password_confirm" placeholder="Confirm Password">
+            </div>
+<br>
+
+ <div class="form-group col-sm-12">
+              <label>Secret Text </label>  <span style='color:red'>This can be anything. We will use it to encrypt your Password and Other Data within the application..</span> <br>
+              <input type="text" class="col-sm-12 form-control" id="secret_key" name="secret_key" placeholder="Enter Secret Text">
+            </div>
+<br>
+
+
+
+
+
+ <div class="form-group col-sm-12">
+						<div id="loader_signup"></div>
+                        <div id="result_signup" class="myform_clean_signup"></div>
+                    </div>
+
+                    <input style='float:right;' type="button" id="signup_btn" class="pull-right btn btn-primary signup_btn" value="Create User" />
+<br>
+<input type='hidden' class='data_value' value=''>
+<div id='download_btn_id'></div>
+
+
+      </div>
+<br><br>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button style='float:left;' type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Create User Modal ends -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- user Login  Modal start -->
+
+
+
+<div id="myModal_user_login" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header"  style='background: #008080;color:white;padding:10px;'>
+        <h4 class="modal-title">User Login</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+
+<center><h3>	Login Option 1</h3></center>
+
+
+ <div class="form-group">
+              <label> Enter Your Registered DID from  our App Signup form (Eg. <b>myDID-fred60</b> )</label>
+              <input type="text" class="col-sm-12 form-control" id="your_did1" name="your_did1" placeholder="Enter Your DID">
+            </div>
+<br>
+
+
+
+ <div class="form-group">
+              <label> Enter Email Address </label>
+              <input type="text" class="col-sm-12 form-control" id="email1" name="email1" placeholder="Enter Email Address">
+            </div>
+<br>
+
+
+
+ <div class="form-group">
+              <label> Enter Password </label>
+              <input type="password" class="col-sm-12 form-control" id="password1" name="password1" placeholder="Enter Password">
+            </div>
+<br>
+
+<div id="result_login2a" class="col-sm-12"></div>
+ <div class="form-group col-sm-12">
+						<div id="loader_login"></div>
+                        <div id="result_login" class="myform_clean_login"></div>
+                    </div>
+
+                    <input type="button" id="login_btn" class="pull-right btn btn-primary login_btn" value="Login" />
+
+
+      </div>
+<br><br>
+
+
+<center><h2> Login	Option 2</h2></center>
+
+ <div class="form-group col-sm-12">
+						<div id="loader_login2"></div>
+                        <div id="result_login2" class=""></div>
+                    </div>
+
+<div id="result_login2b" class="col-sm-12"></div>
+
+ <div class="form-group col-sm-12">
+
+<input type='hidden' id='fileSave' value=''>
+ <label> Upload Your DID Login Files Data </label>
+  <input type="file" id="fileToLoad"><br>
+    <button id="loadloginFiles" class="pull-right btn btn-primary">Login </button>
+</div>
+
+
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--User Login Modal ends -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+</body>
+</html>
