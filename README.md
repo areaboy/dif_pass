@@ -1,4 +1,4 @@
-# DIF Pass
+# DIF Pass --(Open Source: MIT Licensed)
  An application that allow Users, Teams, Companies, Organizations etc. to securely store, Share and manage their data all in one secured place leveraging TBD(Web5-Js) Decentralized Identity. 
 
 ## Inspiration
